@@ -1,93 +1,86 @@
-# tasarte
+### README.md (Versión en Inglés)
 
-# 🛠️ ConkyForge - User Guide
+```markdown
+# 🛠️ ConkyForge V10.41 - Universal Matrix Update
 
-Welcome to ConkyForge! A visual, browser-based tool to design your Conky widgets without writing endless lines of code manually.
+ConkyForge is a visual, web-based WYSIWYG (What You See Is What You Get) development environment designed to generate advanced **Conky** configurations and graphical rendering scripts via the **Lua and Cairo API**. It empowers users to design high-fidelity desktop widgets, concentric rings, analog clocks, and status bars through a Drag & Drop interface, eliminating the need to manually write declarative code or mathematical scripts.
 
-## 📋 Prerequisites (Dependencies)
-To ensure all modules work perfectly, you need to install a few packages on your Linux distribution:
+Version **V10.41** (Universal Matrix Update) introduces a full-compatibility architecture that resolves rendering issues in mixed X11/Wayland environments and dynamically manages the Cairo library fragmentation introduced in Conky 1.21+.
 
-* **Conky with Lua/Cairo support:** Ensure you have the `conky-all` package installed (on Ubuntu/Debian) or `conky` compiled with lua support.
-* **Playerctl:** To control media players. (`sudo apt install playerctl` or equivalent).
-* **Audacious:** (Optional) If you plan to use the native Audacious module.
-* **Sensors:** To read temperatures and fan speeds. (`sudo apt install lm-sensors`).
-* **Nvidia-smi:** For the concentric GPU ring (only required if using NVIDIA graphic cards).
-* **Python 3:** Required for the email checking script.
+---
 
-## 🚀 How to use ConkyForge
+## 🚀 Key Features
 
-1.  **Open the editor:** Double-click the ConkyForge HTML file to open it in your web browser.
-2.  **Set up your canvas:** On the left panel, adjust the width, height, colors, and your screen resolution.
-3.  **Add Widgets:** Click the buttons on the left panel to spawn elements onto the canvas.
-4.  **Place and resize:** Drag the widgets to your desired position. You can resize them by dragging the bottom-right corner.
-    * *Sniper Trick:* If you double-click a block, you can adjust its position by adding or subtracting exact pixels (X and Y offsets) for perfect alignment.
-5.  **Forge Conky:** Press the bottom "FORJAR CONKY" button. The browser will automatically download two files:
-    * `conky.conf`: The main engine.
-    * `visuals.lua`: The magic handling rings, complex graphs, and custom fonts.
+* **Drag & Drop Engine:** Millimetric canvas with a 20px grid for rapid positioning of information blocks.
+* **Dynamic Color Management:** Global color palette injected directly as HEX variables into `conky.conf` and RGB ratios into `visuals.lua`.
+* **Sniper Mode:** Pixel-perfect X/Y coordinate adjustment system accessible by double-clicking any widget on the canvas.
+* **Lua/Cairo Vector Rendering:** Generation of pure hardware graphics (CPU/RAM Rings, equalizers, analog clocks, and dual graphs for AMD/NVIDIA GPUs) using pre-compiled Lua mathematical functions.
+* **PNG Animation Engine:** Frame-rate rotation logic tied to Conky's update cycles (`${updates}`) to render animated PNG sprites.
+* **Local Persistence:** Save and load projects in native JSON format using the web browser's `localStorage`.
 
-## 📂 Where to place the files
+---
 
-Move the downloaded files to your personal Conky configuration folder:
+## ⚙️ Technical Details (V10.41 Universal Matrix)
+
+Starting with Conky 1.21, developers decoupled the Cairo bindings (`cairo_xlib` and `cairo_wayland`) from the main `cairo` module. ConkyForge V10.41 handles backward compatibility through:
+
+1.  **Protected Calls (`pcall`):** The generated Lua script uses `pcall` to import graphical libraries. If a user runs a legacy Conky binary, the call will fail silently without crashing the environment.
+    ```lua
+    require 'cairo'
+    pcall(require, 'cairo_xlib')
+    pcall(require, 'cairo_wayland')
+    ```
+2.  **Surface Auto-Detection:** The graphical engine verifies the availability of the drawing surface at Runtime and dynamically allocates the canvas, ensuring functionality on both XWayland and upcoming native Wayland setups.
+    ```lua
+    if cairo_xlib_surface_create ~= nil then
+        cs = cairo_xlib_surface_create(...)
+    elseif cairo_wayland_surface_create ~= nil then
+        cs = cairo_wayland_surface_create(...)
+    end
+    ```
+
+---
+
+## 📦 Installation and Deployment
+
+ConkyForge does not require installation itself (it is a static HTML file), but the host system needs Conky dependencies. To streamline deployment, we provide an **Automated Bash Installer Script**.
+
+### Running the Auto-Installer
+Download and run the installer in your terminal. This script will detect your package manager (APT, Pacman, DNF, Zypper), install `conky-all`, create the base directories at `~/.config/conky/`, and set up an autostart entry.
+
 ```bash
-mkdir -p ~/.config/conky/
-mv Downloads/conky.conf ~/.config/conky/
-mv Downloads/visuals.lua ~/.config/conky/
-Make sure the "Ruta absoluta archivo LUA" (Absolute Lua path) in the ConkyForge left panel matches the exact path where you saved the visuals.lua file (Example: /home/YOUR_USER/.config/conky/visuals.lua).
+chmod +x install_conkyforge.sh
+./install_conkyforge.sh
+Note for pure Wayland users (e.g., Ubuntu 26.04+): The installer will detect if your environment lacks native X11/Lua-Cairo support and will offer to automatically download and integrate a fail-safe static AppImage of Conky 1.19.2.
 
-✉️ Email Setup (mail.py)
-If you use the Email widget:
+📖 Usage Guide
+Open the Forge: Run the conkyforge.html file in any modern web browser (Firefox, Chrome, Edge).
 
-Open the mail.py file with a text editor.
+Tweak Global Parameters: Define your resolution, system font (e.g., DejaVu Sans, Ubuntu, Hack), canvas size, and colors in the sidebar.
 
-Change USERNAME to your email address.
+Add Widgets: Select elements from the System, Network, or Lua Matrix sections. Drag them across the canvas.
 
-Change PASSWORD to your password. If you use Gmail or Outlook, you will need to generate an "App Password" from your account's security settings. Regular passwords will not work.
+Fine-Tuning: Double-click any widget to open Sniper Mode and apply a micrometric X/Y offset.
 
-Save the file in ~/.config/conky/mail.py and grant execution permissions: chmod +x ~/.config/conky/mail.py.
+Forge: Click on "FORGE CONKY". Two files will be downloaded:
 
+conky.conf: The main configuration file (text and positioning).
 
-# 🛠️ ConkyForge - Manual de Usuario
+visuals.lua: The mathematical engine for vector rendering.
 
-¡Bienvenido a ConkyForge! Una herramienta visual y en tu navegador para diseñar tus widgets de Conky sin tener que escribir interminables líneas de código a mano.
+Deploy: Move both files to ~/.config/conky/ and restart Conky:
 
-## 📋 Requisitos Previos (Dependencias)
-Para que todos los módulos funcionen a la perfección, necesitas instalar algunos paquetes en tu distribución Linux:
+Bash
+killall conky ; conky -c ~/.config/conky/conky.conf &
+🧩 Recommended Host Dependencies
+To ensure all modules generated by the Forge can fetch real data, it is recommended to have the following packages installed on the host system:
 
-* **Conky con soporte Lua/Cairo:** Asegúrate de tener instalado el paquete `conky-all` (en Ubuntu/Debian) o tener `conky` compilado con soporte lua.
-* **Playerctl:** Para controlar reproductores multimedia. (`sudo apt install playerctl` o equivalente).
-* **Audacious:** (Opcional) Si vas a usar el módulo nativo de Audacious.
-* **Sensors:** Para medir temperaturas y ventiladores. (`sudo apt install lm-sensors`).
-* **Nvidia-smi:** Para el anillo concéntrico de la GPU (solo necesario si usas tarjetas NVIDIA).
-* **Python 3:** Requerido para el script de lectura de correo electrónico.
+conky-all (Main binary with Lua/Cairo support enabled).
 
-## 🚀 Cómo usar ConkyForge
+curl (For the Public IP and Weather module via wttr.in).
 
-1.  **Abre el editor:** Haz doble clic en el archivo HTML de ConkyForge para abrirlo en tu navegador.
-2.  **Configura tu lienzo:** En el panel izquierdo, ajusta el ancho, el alto, los colores y la resolución de tu pantalla.
-3.  **Añade Widgets:** Pulsa en los botones del panel izquierdo para ir añadiendo elementos al lienzo.
-4.  **Coloca y ajusta:** Arrastra los widgets a la posición que desees. Puedes estirar su tamaño agarrando la esquina inferior derecha.
-    * *Truco de Francotirador:* Si haces doble clic sobre un bloque, podrás ajustar su posición sumando o restando píxeles exactos (X e Y) para alinearlo a la perfección.
-5.  **Forjar Conky:** Pulsa el botón inferior "FORJAR CONKY". El navegador descargará automáticamente dos archivos:
-    * `conky.conf`: El motor principal.
-    * `visuals.lua`: La magia que dibuja los anillos, gráficas complejas y fuentes personalizadas.
+lm-sensors (For accurate CPU/GPU temperature readings).
 
-## 📂 Dónde colocar los archivos
+playerctl (For the media control and reading module).
 
-Mueve los archivos descargados a tu carpeta personal de configuración de Conky:
-```bash
-mkdir -p ~/.config/conky/
-mv Descargas/conky.conf ~/.config/conky/
-mv Descargas/visuals.lua ~/.config/conky/
-
-Asegúrate de que la "Ruta absoluta archivo LUA" en el panel izquierdo de ConkyForge coincida con la ruta donde has guardado el archivo visuals.lua (Ejemplo: /home/TU_USUARIO/.config/conky/visuals.lua).
-
-✉️ Configurar el Correo (mail.py)
-Si usas el widget de correo:
-
-Abre el archivo mail.py con un editor de texto.
-
-Cambia USERNAME por tu correo electrónico.
-
-Cambia PASSWORD por tu contraseña. Si usas Gmail u Outlook, necesitarás crear una "Contraseña de aplicación" desde las opciones de seguridad de tu cuenta. No funciona con la contraseña normal.
-
-Guarda el archivo en ~/.config/conky/mail.py y dale permisos de ejecución: chmod +x ~/.config/conky/mail.py.
+python3 (If using the custom Email scanning module).
