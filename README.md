@@ -1,86 +1,55 @@
-### README.md (Versión en Inglés)
-
-```markdown
-# 🛠️ ConkyForge V10.41 - Universal Matrix Update
+# ?? ConkyForge V10.41.1 - Universal Matrix Update
 
 ConkyForge is a visual, web-based WYSIWYG (What You See Is What You Get) development environment designed to generate advanced **Conky** configurations and graphical rendering scripts via the **Lua and Cairo API**. It empowers users to design high-fidelity desktop widgets, concentric rings, analog clocks, and status bars through a Drag & Drop interface, eliminating the need to manually write declarative code or mathematical scripts.
 
-Version **V10.41** (Universal Matrix Update) introduces a full-compatibility architecture that resolves rendering issues in mixed X11/Wayland environments and dynamically manages the Cairo library fragmentation introduced in Conky 1.21+.
+Version **V10.41.1** (Universal Matrix Update) introduces a full-compatibility architecture that resolves rendering issues in mixed X11/Wayland environments and dynamically manages the Cairo library fragmentation introduced in Conky 1.21+.
 
 ---
 
-## 🚀 Key Features
+## ? Key Features
 
 * **Drag & Drop Engine:** Millimetric canvas with a 20px grid for rapid positioning of information blocks.
 * **Dynamic Color Management:** Global color palette injected directly as HEX variables into `conky.conf` and RGB ratios into `visuals.lua`.
 * **Sniper Mode:** Pixel-perfect X/Y coordinate adjustment system accessible by double-clicking any widget on the canvas.
-* **Lua/Cairo Vector Rendering:** Generation of pure hardware graphics (CPU/RAM Rings, equalizers, analog clocks, and dual graphs for AMD/NVIDIA GPUs) using pre-compiled Lua mathematical functions.
+* **Lua/Cairo Vector Rendering:** Generation of pure hardware graphics (CPU/RAM Rings, equalizers, analog clocks, and dual graphs for AMD/NVIDIA GPUs).
 * **PNG Animation Engine:** Frame-rate rotation logic tied to Conky's update cycles (`${updates}`) to render animated PNG sprites.
 * **Local Persistence:** Save and load projects in native JSON format using the web browser's `localStorage`.
 
 ---
 
-## ⚙️ Technical Details (V10.41 Universal Matrix)
+## ? Forge Tips & Tricks (Important!)
 
-Starting with Conky 1.21, developers decoupled the Cairo bindings (`cairo_xlib` and `cairo_wayland`) from the main `cairo` module. ConkyForge V10.41 handles backward compatibility through:
+To get the most out of the visual tools, keep these internal engine rules in mind:
 
-1.  **Protected Calls (`pcall`):** The generated Lua script uses `pcall` to import graphical libraries. If a user runs a legacy Conky binary, the call will fail silently without crashing the environment.
-    ```lua
-    require 'cairo'
-    pcall(require, 'cairo_xlib')
-    pcall(require, 'cairo_wayland')
-    ```
-2.  **Surface Auto-Detection:** The graphical engine verifies the availability of the drawing surface at Runtime and dynamically allocates the canvas, ensuring functionality on both XWayland and upcoming native Wayland setups.
-    ```lua
-    if cairo_xlib_surface_create ~= nil then
-        cs = cairo_xlib_surface_create(...)
-    elseif cairo_wayland_surface_create ~= nil then
-        cs = cairo_wayland_surface_create(...)
-    end
-    ```
+### ? How Animated PNGs Work
+The Lua engine interpolates and fetches frames dynamically. To avoid `PNG ERROR` messages:
+1. **Sequential Naming:** Your images must be named with pure numbers, **without leading zeros**. (Correct example: `frame1.png`, `frame2.png` ... `frame10.png`).
+2. **Strict Absolute Path:** In the Forge's "Prefix" field, **you must always start with the initial `/`** of your file system.
+3. **The Prefix is the Base Name:** In the text prompt, write the full path ending exactly *before* the number. 
+   * *Example:* If your images are located at `/home/user/anim/fan1.png`, the exact prefix you must enter in the Forge is: `/home/user/anim/fan`
+
+### ? Text Spacing (Kerning)
+When adding "Horizontal Text" or "Vertical Text", the tool will ask for three values: `Text, Size, Spacing`.
+* **Spacing accepts negative values** (e.g., `-2`, `-5`). This is incredibly useful for fonts with wide natural kerning or if you want to create a stylized effect where letters slightly overlap.
 
 ---
 
-## 📦 Installation and Deployment
+## ?? Technical Details (Wayland Compatibility)
 
-ConkyForge does not require installation itself (it is a static HTML file), but the host system needs Conky dependencies. To streamline deployment, we provide an **Automated Bash Installer Script**.
+Starting with Conky 1.21, developers decoupled the Cairo bindings (`cairo_xlib` and `cairo_wayland`) from the main `cairo` module. ConkyForge handles backward compatibility using **Protected Calls (`pcall`)** and **Surface Auto-Detection** at runtime, dynamically allocating the canvas whether you are running XWayland or native Wayland.
 
-### Running the Auto-Installer
-Download and run the installer in your terminal. This script will detect your package manager (APT, Pacman, DNF, Zypper), install `conky-all`, create the base directories at `~/.config/conky/`, and set up an autostart entry.
+---
 
-```bash
-chmod +x install_conkyforge.sh
-./install_conkyforge.sh
-Note for pure Wayland users (e.g., Ubuntu 26.04+): The installer will detect if your environment lacks native X11/Lua-Cairo support and will offer to automatically download and integrate a fail-safe static AppImage of Conky 1.19.2.
+## ? Installation and Deployment
 
-📖 Usage Guide
-Open the Forge: Run the conkyforge.html file in any modern web browser (Firefox, Chrome, Edge).
+ConkyForge does not require installation (it is a static HTML file), but to streamline host system preparation, we provide an **Automated Bash Installer Script** (`install_conkyforge.sh`). This script detects your package manager, installs `conky-all`, and sets up the base directories at `~/.config/conky/`.
 
-Tweak Global Parameters: Define your resolution, system font (e.g., DejaVu Sans, Ubuntu, Hack), canvas size, and colors in the sidebar.
+---
 
-Add Widgets: Select elements from the System, Network, or Lua Matrix sections. Drag them across the canvas.
+## ? Quick Usage Guide
 
-Fine-Tuning: Double-click any widget to open Sniper Mode and apply a micrometric X/Y offset.
-
-Forge: Click on "FORGE CONKY". Two files will be downloaded:
-
-conky.conf: The main configuration file (text and positioning).
-
-visuals.lua: The mathematical engine for vector rendering.
-
-Deploy: Move both files to ~/.config/conky/ and restart Conky:
-
-Bash
-killall conky ; conky -c ~/.config/conky/conky.conf &
-🧩 Recommended Host Dependencies
-To ensure all modules generated by the Forge can fetch real data, it is recommended to have the following packages installed on the host system:
-
-conky-all (Main binary with Lua/Cairo support enabled).
-
-curl (For the Public IP and Weather module via wttr.in).
-
-lm-sensors (For accurate CPU/GPU temperature readings).
-
-playerctl (For the media control and reading module).
-
-python3 (If using the custom Email scanning module).
+1.  Open `conkyforge.html` in your browser.
+2.  Tweak global parameters (font, resolution, zoom, and colors).
+3.  Drag and drop widgets onto the canvas. Double-click them to activate *Sniper Mode*.
+4.  Click on **"FORGE CONKY"**. You will download `conky.conf` and `visuals.lua`.
+5.  Move both files to `~/.config/conky/` and run: `killall conky ; conky -c ~/.config/conky/conky.conf &`
