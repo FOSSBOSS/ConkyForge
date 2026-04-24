@@ -523,7 +523,7 @@ window.onerror = function(msg, url, line) { console.error("Error detected: " + m
     draw_shades = false,
     default_color = "${hexText}",
     default_outline_color = "blue",
-    lua_load = '${luaPath}',
+    lua_load = os.getenv("HOME") .. '${luaPath}',
     lua_draw_hook_pre = 'conky_main_visuals',
 }\n\nconky.text = [[\n`;
 
