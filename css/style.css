@@ -1,67 +1,460 @@
 :root {
-            --bg-color: #1e1e2e;
-            --panel-bg: #282a36;
-            --col-text: #f8f8f2;
-            --col-accent: #8be9fd;
-            --col-cpu: #bd93f9;
-            --col-ram: #50fa7b;
-            --col-disk: #f1fa8c;
-            --col-temp: #ff5555;
-        }
+    --bg-color: #1e1e2e;
+    --panel-bg: #282a36;
+    --col-text: #f8f8f2;
+    --col-accent: #8be9fd;
+    --col-cpu: #bd93f9;
+    --col-ram: #50fa7b;
+    --col-disk: #f1fa8c;
+    --col-temp: #ff5555;
+}
 
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--col-text); display: flex; height: 100vh; overflow: hidden; }
-        #sidebar { width: 340px; background-color: var(--panel-bg); padding: 15px; box-shadow: 2px 0 5px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 8px; z-index: 10; overflow-y: auto; }
-        .tool-btn { background-color: #44475a; color: white; border: 1px solid var(--col-accent); padding: 7px; border-radius: 5px; cursor: pointer; text-align: left; transition: all 0.2s; font-size: 0.82rem; font-weight: 500; }
-        .tool-btn:hover { background-color: var(--col-accent); color: #282a36; }
-        #workspace { flex-grow: 1; padding: 40px; display: flex; justify-content: flex-start; align-items: flex-start; background-color: #1e1e2e; overflow: auto; }
+/* =======================
+   Layout
+======================= */
 
-        #canvas-wrapper { position: relative; margin: auto; }
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--col-text);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
 
-        #conky-canvas {
-            width: 400px; height: 1000px; background-color: rgba(0, 0, 0, 0.4);
-            border: 2px dashed #6272a4; border-radius: 10px; position: relative; overflow: hidden;
-            transition: transform 0.3s ease; transform-origin: top left;
-            background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 20px 20px;
-            font-family: 'DejaVu Sans', sans-serif;
-        }
+#sidebar {
+    width: 340px;
+    background-color: var(--panel-bg);
+    padding: 15px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 10;
+    overflow-y: auto;
+}
 
-        h2 { margin-top: 5px; font-size: 0.85rem; color: var(--col-accent); border-bottom: 1px solid #44475a; padding-bottom: 3px; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px;}
+#workspace {
+    flex-grow: 1;
+    padding: 40px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    background-color: #1e1e2e;
+    overflow: auto;
+}
 
-        .conky-block { box-sizing: border-box; position: absolute; background-color: rgba(68, 71, 90, 0.85); border: 1px solid var(--col-accent); padding: 10px; border-radius: 6px; cursor: grab; user-select: none; min-width: 140px; min-height: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); color: var(--col-text); resize: both; overflow: hidden; display: flex; flex-direction: column; }
-        .conky-block:active { cursor: grabbing; }
-        .conky-block::-webkit-resizer { background-color: var(--col-accent); }
-        .close-btn { position: absolute; top: 2px; right: 4px; color: var(--col-temp); cursor: pointer; font-size: 14px; font-weight: bold; z-index: 20; }
-        .close-btn:hover { color: #ff0000; }
-        .block-title { font-weight: bold; margin-bottom: 5px; display: block; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 3px; flex-shrink: 0; font-size: 13px; color: var(--col-text); }
+#canvas-wrapper {
+    position: relative;
+    margin: auto;
+}
 
-        .widget-container { display: flex; flex-direction: column; gap: 6px; margin-top: 2px; flex-grow: 1; justify-content: space-around;}
-        .widget-row { display: flex; justify-content: space-between; font-size: 13px; font-family: inherit; line-height: 1.2; gap: 15px; color: var(--col-text); }
+#conky-canvas {
+    width: 400px;
+    height: 1000px;
+    background-color: rgba(0, 0, 0, 0.4);
 
-        .bar-bg { width: 100%; height: 10px; background-color: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.2); }
-        .bar-fill { height: 100%; border-radius: 4px; }
+    border: 2px dashed #6272a4;
+    border-radius: 10px;
 
-        .color-cpu { color: var(--col-cpu); background-color: var(--col-cpu); }
-        .color-ram { color: var(--col-ram); background-color: var(--col-ram); }
-        .color-disk { color: var(--col-disk); background-color: var(--col-disk); }
-        .top-header { color: var(--col-accent); font-weight: bold; border-bottom: 1px dashed rgba(255,255,255,0.3); margin-bottom: 2px; padding-bottom: 2px; }
+    position: relative;
+    overflow: hidden;
 
-        .graph-box { width: 100%; flex-grow: 1; border-bottom: 2px solid; margin-top: 2px; opacity: 0.7; border-radius: 2px; min-height: 30px;}
-        .graph-cpu { background: linear-gradient(to top, var(--col-cpu), transparent); border-color: var(--col-cpu); }
-        .graph-net-down { background: linear-gradient(to top, var(--col-accent), transparent); border-color: var(--col-accent); }
-        .graph-net-up { background: linear-gradient(to top, var(--col-disk), transparent); border-color: var(--col-disk); }
+    transition: transform 0.3s ease;
+    transform-origin: top left;
 
-        .ring-container { width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; margin: 0 auto; flex-grow: 1;}
-        .ring-inner { width: 80%; height: 80%; background-color: var(--panel-bg); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .ring-val { font-weight: bold; font-size: 1.1rem; } .ring-lbl { font-size: 0.65rem; color: rgba(255,255,255,0.6); margin-top: -2px; }
+    background-image:
+        linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
 
-        .eq-container { display: flex; align-items: flex-end; gap: 2px; width: 100%; height: 100%; min-height: 40px; margin-top: 5px; }
-        .eq-bar { background: linear-gradient(to top, var(--col-cpu), var(--col-accent)); flex-grow: 1; border-radius: 2px 2px 0 0; opacity: 0.9; }
+    background-size: 20px 20px;
 
-        .size-badge { position: absolute; bottom: 2px; right: 2px; background: rgba(0,0,0,0.7); color: var(--col-ram); font-size: 10px; padding: 2px 4px; border-radius: 3px; pointer-events: none; font-family: monospace; }
+    font-family: 'DejaVu Sans', sans-serif;
+}
 
-        .dual-ring-bg { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 6px solid var(--col-temp); border-bottom-color: transparent; opacity: 0.8;}
-        .dual-ring-inner { position: absolute; width: 70%; height: 70%; border-radius: 50%; border: 6px solid var(--col-disk); border-bottom-color: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.8;}
+/* =======================
+   Typography / Headers
+======================= */
 
-        .analog-clock { width: 100%; height: 100%; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); position: relative; display: flex; align-items: center; justify-content: center;}
-        .analog-clock::after { content: ''; width: 6px; height: 6px; background: var(--col-temp); border-radius: 50%; position: absolute; }
+h2 {
+    margin-top: 5px;
+    margin-bottom: 2px;
+    padding-bottom: 3px;
+
+    font-size: 0.85rem;
+    color: var(--col-accent);
+
+    border-bottom: 1px solid #44475a;
+
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* =======================
+   Buttons
+======================= */
+
+.tool-btn {
+    background-color: #44475a;
+    color: white;
+    border: 1px solid var(--col-accent);
+
+    padding: 7px;
+    border-radius: 5px;
+
+    cursor: pointer;
+    text-align: left;
+
+    transition: all 0.2s;
+
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+.tool-btn:hover {
+    background-color: var(--col-accent);
+    color: #282a36;
+}
+
+/* =======================
+   Blocks
+======================= */
+
+.conky-block {
+    box-sizing: border-box;
+    position: absolute;
+
+    background-color: rgba(68, 71, 90, 0.85);
+    border: 1px solid var(--col-accent);
+
+    padding: 10px;
+    border-radius: 6px;
+
+    cursor: grab;
+    user-select: none;
+
+    min-width: 140px;
+    min-height: 40px;
+
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+
+    color: var(--col-text);
+
+    resize: both;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.conky-block:active {
+    cursor: grabbing;
+}
+
+.conky-block::-webkit-resizer {
+    background-color: var(--col-accent);
+}
+
+/* =======================
+   Block UI
+======================= */
+
+.close-btn {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+
+    color: var(--col-temp);
+
+    cursor: pointer;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    z-index: 20;
+}
+
+.close-btn:hover {
+    color: #ff0000;
+}
+
+.block-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+
+    display: block;
+
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 3px;
+
+    flex-shrink: 0;
+
+    font-size: 13px;
+    color: var(--col-text);
+}
+
+/* =======================
+   Widgets
+======================= */
+
+.widget-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    margin-top: 2px;
+
+    flex-grow: 1;
+    justify-content: space-around;
+}
+
+.widget-row {
+    display: flex;
+    justify-content: space-between;
+
+    font-size: 13px;
+    line-height: 1.2;
+
+    gap: 15px;
+    color: var(--col-text);
+}
+
+/* =======================
+   Bars / Colors
+======================= */
+
+.bar-bg {
+    width: 100%;
+    height: 10px;
+
+    background-color: rgba(255, 255, 255, 0.1);
+
+    border-radius: 4px;
+    overflow: hidden;
+
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 4px;
+}
+
+.color-cpu {
+    color: var(--col-cpu);
+    background-color: var(--col-cpu);
+}
+
+.color-ram {
+    color: var(--col-ram);
+    background-color: var(--col-ram);
+}
+
+.color-disk {
+    color: var(--col-disk);
+    background-color: var(--col-disk);
+}
+
+/* =======================
+   Graphs / Headers
+======================= */
+
+.top-header {
+    color: var(--col-accent);
+    font-weight: bold;
+
+    border-bottom: 1px dashed rgba(255,255,255,0.3);
+
+    margin-bottom: 2px;
+    padding-bottom: 2px;
+}
+
+.graph-box {
+    width: 100%;
+    flex-grow: 1;
+
+    border-bottom: 2px solid;
+
+    margin-top: 2px;
+    opacity: 0.7;
+
+    border-radius: 2px;
+
+    min-height: 30px;
+}
+
+.graph-cpu {
+    background: linear-gradient(to top, var(--col-cpu), transparent);
+    border-color: var(--col-cpu);
+}
+
+.graph-net-down {
+    background: linear-gradient(to top, var(--col-accent), transparent);
+    border-color: var(--col-accent);
+}
+
+.graph-net-up {
+    background: linear-gradient(to top, var(--col-disk), transparent);
+    border-color: var(--col-disk);
+}
+
+/* =======================
+   Rings / Circular UI
+======================= */
+
+.ring-container {
+    width: 100%;
+    height: 100%;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+    margin: 0 auto;
+
+    flex-grow: 1;
+}
+
+.ring-inner {
+    width: 80%;
+    height: 80%;
+
+    background-color: var(--panel-bg);
+
+    border-radius: 50%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.ring-val {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.ring-lbl {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.6);
+    margin-top: -2px;
+}
+
+/* =======================
+   EQ Bars
+======================= */
+
+.eq-container {
+    display: flex;
+    align-items: flex-end;
+
+    gap: 2px;
+
+    width: 100%;
+    height: 100%;
+
+    min-height: 40px;
+    margin-top: 5px;
+}
+
+.eq-bar {
+    background: linear-gradient(to top, var(--col-cpu), var(--col-accent));
+    flex-grow: 1;
+
+    border-radius: 2px 2px 0 0;
+    opacity: 0.9;
+}
+
+/* =======================
+   Misc UI
+======================= */
+
+.size-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+
+    background: rgba(0,0,0,0.7);
+    color: var(--col-ram);
+
+    font-size: 10px;
+
+    padding: 2px 4px;
+    border-radius: 3px;
+
+    pointer-events: none;
+
+    font-family: monospace;
+}
+
+/* =======================
+   Dual Rings
+======================= */
+
+.dual-ring-bg {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    border: 6px solid var(--col-temp);
+    border-bottom-color: transparent;
+
+    opacity: 0.8;
+}
+
+.dual-ring-inner {
+    position: absolute;
+    width: 70%;
+    height: 70%;
+
+    border-radius: 50%;
+
+    border: 6px solid var(--col-disk);
+    border-bottom-color: transparent;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0.8;
+}
+
+/* =======================
+   Analog Clock
+======================= */
+
+.analog-clock {
+    width: 100%;
+    height: 100%;
+
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2);
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.analog-clock::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+
+    background: var(--col-temp);
+
+    border-radius: 50%;
+    position: absolute;
+}
